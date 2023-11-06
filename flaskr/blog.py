@@ -13,8 +13,8 @@ bp = Blueprint("blog", __name__)
 def index():
     db = get_db()
     posts = db.execute(
-        "SELECT p.id, title, body, created, author_id, username"
-        "FROM post p JOIN user u ON p.author_id = u.id"
+        "SELECT p.id, title, body, created, author_id, username "
+        "FROM post p JOIN user u ON p.author_id = u.id "
         "ORDER BY created DESC"
     ).fetchall()
     return render_template("blog/index.html", posts=posts)
@@ -36,7 +36,7 @@ def create():
             db.execute(
                 "INSERT INTO post (title, body, author_id) "
                 "VALUES (?, ?, ?)",
-                (title, body, g["user"]["id"]),
+                (title, body, g.user["id"]),
             )
             db.commit()
             return redirect(url_for("blog.index"))
@@ -45,22 +45,22 @@ def create():
 
 def get_post(id_, check_author=True):
     post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        'FROM post p JOIN user u ON p.author_id = user.id'
+        'SELECT p.id, title, body, created, author_id, username '
+        'FROM post p JOIN user u ON p.author_id = u.id '
         'WHERE p.id = ?',
         (id_,)
     ).fetchone()
 
     if post is None:
-        abort(404, f"Post id {id} doesn't exist.")
+        abort(404, f"Post id {id_} doesn't exist.")
 
-    if check_author and post["author_id"] != g.user.id:
+    if check_author and post["author_id"] != g.user["id"]:
         abort(403)
 
     return post
 
 
-@bp.route('/<int:id>/update', methods=("GET", "POST"))
+@bp.route('/<int:id_>/update', methods=("GET", "POST"))
 @login_required
 def update(id_):
     post = get_post(id_)
@@ -87,7 +87,7 @@ def update(id_):
     return render_template("blog/update.html", post=post)
 
 
-@bp.route("/<int:id>/delete")
+@bp.route("/<int:id_>/delete")
 @login_required
 def delete(id_):
     db = get_db()
