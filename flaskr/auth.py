@@ -4,14 +4,14 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-from workzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from flaskr.db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
-@bp.route("/auth/register", methods=("GET", "POST"))
+@bp.route("/register", methods=("GET", "POST"))
 def register():
     if request.method == "POST":
         username = request.form["username"]
@@ -27,7 +27,7 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user username, password VALUES (?, ?)",
+                    "INSERT INTO user (username, password) VALUES (?, ?)",
                     (username, generate_password_hash(password)),
                 )
                 db.commit()
@@ -72,7 +72,7 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = get_db().execute(
-            "SELECT FROM user WHERE id = ?", (user_id,)
+            "SELECT * FROM user WHERE id = ?", (user_id,)
         ).fetchone()
 
 
